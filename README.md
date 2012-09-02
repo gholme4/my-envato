@@ -14,7 +14,7 @@ My Envato is a small desktop application that provides quick access to the Envat
 - Intel Core™ Duo or faster processor
 - Mac OS X v10.6, v10.7, or v10.8
 - 512MB of RAM (1GB recommended)
-- 
+
 ### My Envato Documentation
 
 Documentation is available at http://me.georgeholmesii.com/my-envato
