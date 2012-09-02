@@ -600,3 +600,40 @@ body {
 	font-weight:600;
 	margin-right:10px;
 }
+
+#search-term {
+	color:white;
+	border:none;
+	background-image: linear-gradient(bottom, rgb(89,89,89) 0%, rgb(0,0,0) 100%);
+	background-image: -o-linear-gradient(bottom, rgb(89,89,89) 0%, rgb(0,0,0) 100%);
+	background-image: -moz-linear-gradient(bottom, rgb(89,89,89) 0%, rgb(0,0,0) 100%);
+	background-image: -webkit-linear-gradient(bottom, rgb(89,89,89) 0%, rgb(0,0,0) 100%);
+	background-image: -ms-linear-gradient(bottom, rgb(89,89,89) 0%, rgb(0,0,0) 100%);
+	background-image: -webkit-gradient( linear, left bottom, left top, color-stop(0, rgb(89,89,89)), color-stop(1, rgb(0,0,0)) );
+	font-size:18px;
+	width:350px;
+	font-weight:300;
+}
+
+.search-button {
+	background-color:#333333;
+	padding:5px;
+	color:white;
+	-webkit-box-shadow: 1px 1px 3px rgba(50, 50, 50, 0.70);
+	box-shadow: 1px 1px 3px rgba(50, 50, 50, 0.70);
+	position:relative;
+	width:80px;
+	left:2px;
+	text-align:center;
+	font-weight:300;
+	font-size:18px;
+	margin-top:15px;
+	cursor:pointer;
+}
+.search-button-hover {
+	background-color:#666666;
+}
+.search-button-clicked {
+	color:black;
+	background-color:#F0F0F0;
+}

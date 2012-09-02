@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.1" encoding="utf-8" ?>
 <application xmlns="http://ns.adobe.com/air/application/2.0">
     <filename>My Envato</filename>
-    <copyright> </copyright>
+    <copyright>2012. George Holmes II. All rights reserved.</copyright>
     <name>My Envato</name>
     <customUpdateUI>false</customUpdateUI>
     <id>MyEnvato</id>
-    <version>1</version>
+    <version>1.1</version>
     <initialWindow>
         <content>index.html</content>
         <height>600</height>

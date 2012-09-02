@@ -2,7 +2,7 @@
 
  * My Envato by George Holmes II
  * Available at http://me.georgeholmesii.com/my-envato 
- * Version: 1.0
+ * Version: 1.1
  * License: GPLv2 or later 
 
 This program is free software; you can redistribute it and/or
@@ -42,15 +42,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Uncomment next line to reset user settings
 //air.EncryptedLocalStore.reset();
-
-// Declare global variables
 var currentMarketplace = "themeforest";
 var storedUpdateTime = "";
 var storedUsername = "";
 var storedKey = "";
+var storedPlaySound = "";
 var lastSaleDate;
 $(function () {
-	
 	// Hide marketplace submenu if page content is clicked
 	$("#page").live("click", function () {
 		var display = $(".marketplace-panel").css("display");
@@ -58,13 +56,14 @@ $(function () {
 		{
 			$(".marketplace-panel").hide("slide", { direction: "left" }, 300);
 		}
+
 		
 	});
 	
 	// Initially hide settings and marketplace pages
 	$("[page=marketplaces], [page=settings]").hide();
 	
-	// Display page for corresponding clicked menu item 
+	// Display page for corresponding clicked menu item
 	$(".main-menu-item").live("click", function () {
 		var thisId = $(this).attr("id");
 		
@@ -128,6 +127,33 @@ $(function () {
 		var urlReq = new air.URLRequest(url); 
 		air.navigateToURL(urlReq);
 	});
+	
+	$("#developer-site").live("click", function () {
+		var display = $(".marketplace-panel").css("display");
+		if (display == "block")
+		{
+			$(".marketplace-panel").hide("slide", { direction: "left" }, 300);
+		}
+
+		
+		var url = "http://me.georgeholmesii.com"; 
+		var urlReq = new air.URLRequest(url); 
+		air.navigateToURL(urlReq);
+	});
+	
+	$("#donate").live("click", function () {
+		var display = $(".marketplace-panel").css("display");
+		if (display == "block")
+		{
+			$(".marketplace-panel").hide("slide", { direction: "left" }, 300);
+		}
+
+		
+		var url = "https://www.paypal.com/xclick/&business=georgeholmesii%40gmail.com&item_name=My%20Envato%20Donations&amount=5.00&quantity=1&item_number=&currency_code=USD"; 
+		var urlReq = new air.URLRequest(url); 
+		air.navigateToURL(urlReq);
+	});
+
 	
 	// Initially hide marketplace submenu
 	$(".marketplace-panel").hide();
@@ -207,10 +233,33 @@ $(function () {
 	$(".save-settings").mousedown(function (e) {
 		$(this).addClass("save-settings-clicked");
 	});
-	
 	$(".save-settings").mouseup(function (e) {
 		$(this).removeClass("save-settings-clicked");
 	});
+	
+	// Hover animation for Search button
+	$(".search-button").hover(
+		function () {
+			$(this).addClass("search-button-hover");
+				
+		},
+		function () {
+			$(this).removeClass("search-button-hover");
+		}
+	);
+	
+	// Animation when Search button is clicked
+	$(".search-button").mousedown(function (e) {
+		$(this).addClass("search-button-clicked");
+	});
+	$(".search-button").mouseup(function (e) {
+		$(this).removeClass("search-button-clicked");
+	});
+	
+	$(".search-button").click(function () {
+		searchMarketplace();
+	});
+
 	
 	// Hover animation for OK button in alert popup
 	$(".ok").hover(
@@ -227,14 +276,14 @@ $(function () {
 	$(".ok").mousedown(function (e) {
 		$(this).addClass("ok-clicked");
 	});
-	
 	$(".ok").mouseup(function (e) {
 		$(this).removeClass("ok-clicked");
 	});
 	
-	
 	// Initially hide page overlay
 	$(".overlay, .modal").hide();
+	
+	$(".saved").css("opacity", "0");
 	
 	// Save settings
 	$(".save-settings").click(function () {
@@ -262,6 +311,13 @@ $(function () {
 		var bytesUpdateTime = new air.ByteArray(); 
 		bytesUpdateTime.writeUTFBytes(updateTime); 
 		air.EncryptedLocalStore.setItem("updatetime", bytesUpdateTime, false);
+		
+		//Save play new sound option
+		var playNewSaleSound = $("#new-sale-sound option:selected").attr("value");
+		storedPlaySound = playNewSaleSound;
+		var bytesPlayNewSaleSound = new air.ByteArray(); 
+		bytesPlayNewSaleSound.writeUTFBytes(playNewSaleSound); 
+		air.EncryptedLocalStore.setItem("playsound", bytesPlayNewSaleSound, false);
 	});
 
 	
@@ -272,6 +328,15 @@ $(function () {
 		var bytesUpdateTime = new air.ByteArray(); 
 		bytesUpdateTime.writeUTFBytes(updateTime); 
 		air.EncryptedLocalStore.setItem("updatetime", bytesUpdateTime, false);	
+	}
+	
+	// Make 'yes' the default new sale sound option
+	if(!air.EncryptedLocalStore.getItem("playsound"))
+	{
+		var playSound = 'yes'; 
+		var bytesPlaySound = new air.ByteArray(); 
+		bytesPlaySound.writeUTFBytes(playSound); 
+		air.EncryptedLocalStore.setItem("playsound", bytesPlaySound, false);	
 	}
 	
 	getSettings();
@@ -332,7 +397,6 @@ $(function () {
 		
 		
 	}	
-	
 	// Override false autoexit when user quits applications
 	air.NativeApplication.nativeApplication.addEventListener(air.Event.EXITING, 
 		function(e) {
@@ -368,6 +432,7 @@ $(function () {
 				$("#stats-content").hide();
 		
 			}
+	
 			
 		}
 	});
@@ -388,6 +453,7 @@ $(function () {
 			{
 				$("#recent-items-content").hide();
 				$("#popular-files-content").show();
+				$("#search-files-content").hide();
 		
 			}
 			
@@ -395,7 +461,18 @@ $(function () {
 			{
 				$("#recent-items-content").show();
 				$("#popular-files-content").hide();
+				$("#search-files-content").hide();
 			}
+			
+			if($(this).attr("id") == "search-files")
+			{
+				$("#search-files-content").show();
+				$("#recent-items-content").hide();
+				$("#popular-files-content").hide();
+			}
+
+			
+
 
 		}
 	});
@@ -415,6 +492,9 @@ $(function () {
 		updatePages();
 	});
 	
+	// Hide search error
+	$(".no-search-results").hide();
+	
 	// Refresh data automatically
 	setInterval(updatePages, storedUpdateTime);
 	
@@ -429,7 +509,7 @@ function updatePages () {
 }
 
 function getMarketplace () {
-	// Get new files
+	// Get recent items
 	$.ajax({
 		url: 'http://marketplace.envato.com/api/v1/random-new-files:' + currentMarketplace + '.json',
 		dataType: 'json',
@@ -482,8 +562,45 @@ function getMarketplace () {
 
 }
 
+function searchMarketplace () {
+// Search filesfiles
+	var searchTerm = $("#search-term").val();
+	$.ajax({
+		url: 'http://marketplace.envato.com/api/v1/search:' + currentMarketplace + ',,' + searchTerm + '.json',
+		dataType: 'json',
+		beforeSend: function( xhr ) {
+			$(".loading-div").show();
+			$(".no-search-results").hide();
+		},
+		error: function (jqXHR, textStatus, errorThrown) {
+			$(".marketplace-error").show();
+			$(".loading-div").hide();
+			$(".popular-files-list").html("");
+			$(".no-search-results").show();
+		},
+	    success: function(data) {
+			$(".marketplace-error").hide();
+			$(".loading-div").hide();
+			$(".no-search-results").hide();
+			var newContent = "";
+			if(data.search.length > 0)
+			{
+				$.each(data.search, function(i,file){
+					
+					newContent += "<a target='_blank' href='" + file.url + "' style='text-decoration:none; color:black;'><div class='item-row'><div></div><div class='item-row-title' style='width:400px;'>" + file.description + "</div><br><div class='item-cost-box'><div class='item-sales-box'>" + file.sales + " Sales</div></div><div style='clear:both;'></div></div></a>";
+				});
+			}
+			else
+			{
+				$(".no-search-results").show();	
+			}
+			$(".search-files-list").html(newContent);				
+																					
+		}
+	});
+}
 function getInfo () {
-	// Get account info
+	// Get stats
 	$.ajax({
 		url: 'http://marketplace.envato.com/api/edge/' + storedUsername + '/' + storedKey + '/account.json',
 		dataType: 'json',
@@ -556,6 +673,13 @@ function getSettings () {
 		$("#key").attr("value", storedKey);
 			
 	}
+	
+	if(air.EncryptedLocalStore.getItem("playsound"))
+	{
+		storedPlaySound = air.EncryptedLocalStore.getItem("playsound");
+		$("#new-sale-sound option[value=" + storedPlaySound + "]").attr('selected', true);
+			
+	}
 }
 
 // Sale notification functionality
@@ -589,8 +713,8 @@ function newSaleUpdate () {
 					air.EncryptedLocalStore.setItem("lastsaledate", bytesRecentSale, false);
 				}
 			}
-			else
 			// User has date of latest sale stored
+			else
 			{
 				// Check if user has any recent sales
 				if(data["recent-sales"].length > 0)
@@ -626,6 +750,7 @@ function openModal (text) {
 		$(".overlay, .modal").hide();
 		
 	});
+	
 }
 
 // Display new sale alert
@@ -661,6 +786,14 @@ function displayNotification()
 	notification.navigateInSystemBrowser = true;
 
 	var NOTIFY_SOURCE = "notification.html";
+	if(air.EncryptedLocalStore.getItem("playsound") == "yes")
+	{
+		var req = new air.URLRequest("javascripts/chaching.mp3"); 
+		var snd = new air.Sound(req); 
+		snd.addEventListener(air.Event.COMPLETE, function () {
+			snd.play();
+		});
+	}
 	notification.load( new air.URLRequest( NOTIFY_SOURCE ) );
 	
 }
@@ -683,6 +816,8 @@ function displayNotification()
         <div class="menu-icon"></div>
     </div>
     <div class="loading-div"></div>
+    <div id="donate">$ Donate</div>
+    <div id="developer-site"> Developer's Site </div>
 </div>
 <div class="marketplace-panel">
     <div id="themeforest" class="marketplace-panel-item marketplace-panel-item-active">themeforest</div>
@@ -698,8 +833,7 @@ function displayNotification()
     <div page="my-info">
         <div class="page-header">
             <div class="refresh">Refresh</div>
-            <div class="page-header-title">My Info</div>
-        </div>
+            <div class="page-header-title">My Info</div></div>
         <div class="tab-container stats-tabs">
             <div class="tab active" id="stats">Stats</div>
             <div class="tab" id="recent-sales">Recent Sales</div>
@@ -719,11 +853,11 @@ function displayNotification()
     <div page="marketplaces">
         <div class="page-header">
             <div class="refresh">Refresh</div>
-            <div class="page-header-title">Marketplace</div>
-        </div>
+            <div class="page-header-title">Marketplace</div></div>
         <div class="tab-container marketplace-tabs">
             <div class="tab active" id="recent-items">New Files</div>
             <div class="tab" id="popular-files">Popular Files</div>
+            <div class="tab" id="search-files">Search Files</div>
             <div style="clear:both;"></div>
         </div>
         <div id="marketplace-content" class="tab-content">
@@ -735,12 +869,19 @@ function displayNotification()
                 <h3 class="marketplace-error" style="display:none;">Could not connect to marketplace. Check internet connection.</h3>
                 <div class="popular-files-list"></div>
             </div>
+            <div id="search-files-content" style="display:none;">
+                
+                <br>
+                <input type="text" id="search-term" placeholder="Enter Search Terms" /><br>
+                <div class="search-button"> Search </div>
+                <div class="search-files-list"></div>
+                <!--<h3 class="marketplace-error" style="display:none;">Could not connect to marketplace. Check internet connection.</h3>-->
+                <h3 class="no-search-results" style="display:none;">Search returned no results</h3>
+            </div>
         </div>
     </div>
     <div page="settings">
-        <div class="page-header">
-            <div class="page-header-title">Settings</div>
-        </div>
+        <div class="page-header"><div class="page-header-title">Settings</div></div>
         <div class="settings-row">
             <div class="settings-label"> Envato Username </div>
             <div class="settings-input">
@@ -759,6 +900,17 @@ function displayNotification()
             <div class="settings-label"> Update Frequency </div>
             <div class="settings-input">
                 <input type="text" id="update-frequency" placeholder="Enter number of minutes"/>
+            </div>
+            <div style="clear:both;"></div>
+        </div>
+        <div class="settings-row">
+            <div class="settings-label"> Play New Sale Sound </div>
+            <div class="settings-input">
+                <select name="new-sales-sound" id="new-sale-sound">
+                  <option value="yes">Yes</option>
+                  <option value="no">No</option>
+                </select>
+
             </div>
             <div style="clear:both;"></div>
         </div>
