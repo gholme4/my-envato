@@ -1,0 +1,774 @@
+<!--
+
+ * My Envato by George Holmes II
+ * Available at http://me.georgeholmesii.com/my-envato 
+ * Version: 1.0
+ * License: GPLv2 or later 
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+-->
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>My Envato</title>
+<meta name="viewport" content="user-scalable=1.0,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="no">
+<meta name="format-detection" content="telephone=no">
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<link href="stylesheets/jquery-ui.css" rel="stylesheet" type="text/css"/>
+<link href="stylesheets/my-envato-style.css" rel="stylesheet" type="text/css"/>
+<script src="javascripts/jquery.js"></script>
+<script src="javascripts/jquery-ui-min.js"></script>
+<script src="javascripts/AIRAliases.js"></script>
+<script src="javascripts/AIRMenuBuilder.js"></script>
+<script src="javascripts/AIRLocalizer.js"></script>
+<!-- <script src="javascripts/AIRIntrospector.js"></script> -->
+<script>
+
+// Uncomment next line to reset user settings
+//air.EncryptedLocalStore.reset();
+
+// Declare global variables
+var currentMarketplace = "themeforest";
+var storedUpdateTime = "";
+var storedUsername = "";
+var storedKey = "";
+var lastSaleDate;
+$(function () {
+	
+	// Hide marketplace submenu if page content is clicked
+	$("#page").live("click", function () {
+		var display = $(".marketplace-panel").css("display");
+		if (display == "block")
+		{
+			$(".marketplace-panel").hide("slide", { direction: "left" }, 300);
+		}
+		
+	});
+	
+	// Initially hide settings and marketplace pages
+	$("[page=marketplaces], [page=settings]").hide();
+	
+	// Display page for corresponding clicked menu item 
+	$(".main-menu-item").live("click", function () {
+		var thisId = $(this).attr("id");
+		
+		// Hide marketplace submenu if another main menu item is clicked
+		if(thisId != "marketplaces")
+		{
+			var display = $(".marketplace-panel").css("display");
+			if (display == "block")
+			{
+				$(".marketplace-panel").hide("slide", { direction: "left" }, 300);
+			}
+
+		}
+		
+		if($(this).hasClass("main-menu-item-active"))
+		{
+			
+		}
+		else
+		{
+			$(".main-menu-item").removeClass("main-menu-item-active");
+			$(this).addClass("main-menu-item-active");
+			$("[page]").hide();
+			$("[page=" + thisId + "]").show();
+			var display = $(".marketplace-panel").css("display");
+		
+		}
+		
+		getSettings();
+	});
+	
+	// Hover animation for main menu buttons
+	$(".main-menu-item").hover(
+		function () {
+			if($(this).hasClass("main-menu-item-active"))
+			{
+				
+			}
+			else
+			{
+				$(this).addClass("main-menu-item-hover");
+			}
+		
+		},
+		function () {
+			$(this).removeClass("main-menu-item-hover");
+		}
+	);
+	
+	// Go to Envato homepage if Envato logo is clicked
+	$("#go-envato").live("click", function () {
+		
+		// Hide marketplace submenu if another Envato logo is clicked
+		var display = $(".marketplace-panel").css("display");
+		if (display == "block")
+		{
+			$(".marketplace-panel").hide("slide", { direction: "left" }, 300);
+		}
+
+		var url = "http://www.envato.com"; 
+		var urlReq = new air.URLRequest(url); 
+		air.navigateToURL(urlReq);
+	});
+	
+	// Initially hide marketplace submenu
+	$(".marketplace-panel").hide();
+	
+	// Toggle visibility of marketplace submenu when Marketplaces button is clicked
+	$("#marketplaces").live("click", function () {
+		var display = $(".marketplace-panel").css("display");
+		if (display == "none")
+		{
+			$(".marketplace-panel").show("slide", { direction: "left" }, 300);
+		}
+		else
+		{
+			$(".marketplace-panel").hide("slide", { direction: "left" }, 300);
+		}
+	});
+	
+	// Load information from marketplace clicked
+	$(".marketplace-panel-item").live("click", function () {
+		var thisId = $(this).attr("id");
+		currentMarketplace = thisId;
+		if(thisId == "threedocean")
+		{
+			currentMarketplace = "3docean";
+		}
+		var display = $(".marketplace-panel").css("display");
+		if (display == "block")
+		{
+			$(".marketplace-panel").hide("slide", { direction: "left" }, 300);
+		}
+
+				
+		if($(this).hasClass("main-menu-item-active"))
+		{
+			
+		}
+		else
+		{
+			$(".marketplace-panel-item").removeClass("marketplace-panel-item-active");
+			$(this).addClass("marketplace-panel-item-active");
+			
+			getMarketplace();
+		}
+
+	});
+	
+	// Hover animation for marketplace submenu items
+	$(".marketplace-panel-item").hover(
+		function () {
+			if($(this).hasClass("marketplace-panel-item-active"))
+			{
+				
+			}
+			else
+			{
+				$(this).addClass("marketplace-panel-item-hover");
+			}
+		
+		},
+		function () {
+			$(this).removeClass("marketplace-panel-item-hover");
+		}
+	);
+	
+	// Hover animation for Save (settings) button
+	$(".save-settings").hover(
+		function () {
+			$(this).addClass("save-settings-hover");
+				
+		},
+		function () {
+			$(this).removeClass("save-settings-hover");
+		}
+	);
+	
+	// Animation when Save button is clicked
+	$(".save-settings").mousedown(function (e) {
+		$(this).addClass("save-settings-clicked");
+	});
+	
+	$(".save-settings").mouseup(function (e) {
+		$(this).removeClass("save-settings-clicked");
+	});
+	
+	// Hover animation for OK button in alert popup
+	$(".ok").hover(
+		function () {
+			$(this).addClass("ok-hover");
+				
+		},
+		function () {
+			$(this).removeClass("ok-hover");
+		}
+	);
+	
+	// Animation when OK button is clicked
+	$(".ok").mousedown(function (e) {
+		$(this).addClass("ok-clicked");
+	});
+	
+	$(".ok").mouseup(function (e) {
+		$(this).removeClass("ok-clicked");
+	});
+	
+	
+	// Initially hide page overlay
+	$(".overlay, .modal").hide();
+	
+	// Save settings
+	$(".save-settings").click(function () {
+		
+		// Alert user that settings have been saved
+		openModal("Settings saved.");
+		
+		// Save username
+		var username = $("#username").attr("value"); 
+		storedUsername = username;
+		var bytesUsername = new air.ByteArray(); 
+		bytesUsername.writeUTFBytes(username); 
+		air.EncryptedLocalStore.setItem("username", bytesUsername, false);
+		
+		// Save API key
+		var key = $("#key").attr("value"); 
+		storedKey = key;
+		var bytesKey = new air.ByteArray(); 
+		bytesKey.writeUTFBytes(key); 
+		air.EncryptedLocalStore.setItem("key", bytesKey, false);
+		
+		// Store update frequency time
+		var updateTime = $("#update-frequency").attr("value") * 60000; 
+		storedUpdateTime = updateTime;
+		var bytesUpdateTime = new air.ByteArray(); 
+		bytesUpdateTime.writeUTFBytes(updateTime); 
+		air.EncryptedLocalStore.setItem("updatetime", bytesUpdateTime, false);
+	});
+
+	
+	// Make 10 minutes the default update frequency time
+	if(!air.EncryptedLocalStore.getItem("updatetime"))
+	{
+		var updateTime = 10 * 60000; 
+		var bytesUpdateTime = new air.ByteArray(); 
+		bytesUpdateTime.writeUTFBytes(updateTime); 
+		air.EncryptedLocalStore.setItem("updatetime", bytesUpdateTime, false);	
+	}
+	
+	getSettings();
+	
+	air.NativeApplication.nativeApplication.activeWindow.maxSize = new air.Point(800, 800);
+	air.NativeApplication.nativeApplication.activeWindow.minSize = new air.Point(450, 400);	
+	
+	//air.Introspector.Console.log('test');
+	
+	air.NativeApplication.nativeApplication.autoExit = false;
+	var mainWindow = air.NativeApplication.nativeApplication.activeWindow;
+	
+	// Prevent application from terminating when main window is closed
+	function closeWindow(evt)
+	{
+		mainWindow.visible = false;
+		evt.preventDefault();
+	}
+	
+	mainWindow.addEventListener(air.Event.CLOSING, closeWindow);
+	
+	function openMainWindow () {
+		mainWindow.activate();
+	}
+	
+	var root;
+	
+	// Add "Open Main Window" to application menu for Mac OS
+	if (air.NativeApplication.supportsMenu) 
+	{ 
+		root = air.NativeApplication.nativeApplication.menu; 
+		var fileMenu = root.getItemAt(1);
+		var openMainWindowItem = new air.NativeMenuItem("Open Main Window", false);
+		fileMenu.submenu.addItem(openMainWindowItem);
+		openMainWindowItem.addEventListener(air.Event.SELECT, openMainWindow);
+	} 
+	// Create system tray menu for Windows
+	else if (air.NativeWindow.supportsMenu) 
+	{ 
+		var iconLoadComplete = function(event){ air.NativeApplication.nativeApplication.icon.bitmaps = new runtime.Array(event.target.content.bitmapData); }
+		
+		var windowsMenu = new air.NativeMenu();
+		var openMainWindowItem = windowsMenu.addItem(new air.NativeMenuItem("Open Main Window", false));
+		openMainWindowItem.addEventListener(air.Event.SELECT, openMainWindow);
+		
+		var exitItem = windowsMenu.addItem(new air.NativeMenuItem("Exit Program", false));
+		exitItem.addEventListener(air.Event.SELECT, function () {
+			 air.NativeApplication.nativeApplication.exit();
+		});
+		
+		air.NativeApplication.nativeApplication.icon.tooltip = "My Envato";
+		air.NativeApplication.nativeApplication.icon.menu = windowsMenu;
+		
+		var systrayIconLoader = new runtime.flash.display.Loader(); 
+		systrayIconLoader.contentLoaderInfo.addEventListener(air.Event.COMPLETE, iconLoadComplete);
+		systrayIconLoader.load(new air.URLRequest("images/my-envato-logo-16x16.png"));
+		
+		
+		
+	}	
+	
+	// Override false autoexit when user quits applications
+	air.NativeApplication.nativeApplication.addEventListener(air.Event.EXITING, 
+		function(e) {
+			var opened = air.NativeApplication.nativeApplication.openedWindows;
+			for (var i = 0; i < opened.length; i ++) {
+				opened[i].close();
+			}
+    });
+	
+	// Tab functionality on My Info page
+	$(".stats-tabs .tab").click(function () {
+		if($(this).hasClass("active"))
+		{
+			
+		}
+		else
+		{
+			$(".stats-tabs .tab").removeClass("active");
+			$(this).addClass("active");
+			
+			if($(this).attr("id") == "stats")
+			{
+				
+				$("#recent-sales-content").hide();
+				$("#stats-content").show();
+		
+			}
+			
+			if($(this).attr("id") == "recent-sales")
+			{
+				
+				$("#recent-sales-content").show();
+				$("#stats-content").hide();
+		
+			}
+			
+		}
+	});
+	
+	// Tab functionality on Marketplace page
+	$(".marketplace-tabs .tab").click(function () {
+		if($(this).hasClass("active"))
+		{
+			
+		}
+		else
+		{
+			$(".marketplace-tabs .tab").removeClass("active");
+			$(this).addClass("active");
+			
+			
+			if($(this).attr("id") == "popular-files")
+			{
+				$("#recent-items-content").hide();
+				$("#popular-files-content").show();
+		
+			}
+			
+			if($(this).attr("id") == "recent-items")
+			{
+				$("#recent-items-content").show();
+				$("#popular-files-content").hide();
+			}
+
+		}
+	});
+	
+	// Open browser window for clicked marketplace files
+	$("a").live("click", function (e) {
+		var url = $(this).attr("href");
+		var itemName = $(this).find(".item-row-title").text();
+		window.open(url, itemName, "height=600, width=1100, top=10, left=10, scrollbars=yes, location=yes");
+		e.preventDefault();
+	});
+	
+	// Request data from Envato marketplace on start-up
+	updatePages();
+	
+	$(".refresh").click(function () {
+		updatePages();
+	});
+	
+	// Refresh data automatically
+	setInterval(updatePages, storedUpdateTime);
+	
+
+});// End $(function () {});
+
+function updatePages () {
+	getMarketplace();
+	getInfo();
+	newSaleUpdate();
+	
+}
+
+function getMarketplace () {
+	// Get new files
+	$.ajax({
+		url: 'http://marketplace.envato.com/api/v1/random-new-files:' + currentMarketplace + '.json',
+		dataType: 'json',
+		beforeSend: function( xhr ) {
+			$(".loading").show();
+		},
+		error: function (jqXHR, textStatus, errorThrown) {
+			$(".marketplace-error").show();
+			$(".loading-div").hide();
+			$(".recent-items-list").html("");
+		},
+	    success: function(data) {
+			$(".marketplace-error").hide();
+			$(".loading-div").hide();	
+			
+			var newContent = "";
+			$.each(data["random-new-files"], function(i,file){
+				
+				newContent += "<a target='_blank' href='" + file.url + "' style='text-decoration:none; color:black;'><div class='item-row'><div ><img class='item-thumbnail' src='" + file.thumbnail + "' /></div><div class='item-row-title'>" + file.item + "</div><br><div class='item-row-date'>Created: " + file.uploaded_on + "</div><div class='item-cost-box'>$" + file.cost + "</div><div style='clear:both;'></div></div></a>";
+            });
+			$(".recent-items-list").html(newContent);																			
+		}
+	});
+	
+	// Get popular files
+	$.ajax({
+		url: 'http://marketplace.envato.com/api/v1/popular:' + currentMarketplace + '.json',
+		dataType: 'json',
+		beforeSend: function( xhr ) {
+			$(".loading-div").show();
+		},
+		error: function (jqXHR, textStatus, errorThrown) {
+			$(".marketplace-error").show();
+			$(".loading-div").hide();
+			$(".popular-files-list").html("");
+		},
+	    success: function(data) {
+			$(".marketplace-error").hide();
+			$(".loading-div").hide();
+			
+			var newContent = "";
+			$.each(data.popular.items_last_three_months, function(i,file){
+				
+				newContent += "<a target='_blank' href='" + file.url + "' style='text-decoration:none; color:black;'><div class='item-row'><div ><img class='item-thumbnail' src='" + file.thumbnail + "' /></div><div class='item-row-title'>" + file.item + "</div><br><div class='item-row-date'>Created: " + file.uploaded_on + "</div><div class='item-cost-box'>$" + file.cost + "<div class='item-sales-box'>" + file.sales + " Sales</div></div><div style='clear:both;'></div></div></a>";
+            });
+			$(".popular-files-list").html(newContent);				
+																					
+		}
+	});
+
+}
+
+function getInfo () {
+	// Get account info
+	$.ajax({
+		url: 'http://marketplace.envato.com/api/edge/' + storedUsername + '/' + storedKey + '/account.json',
+		dataType: 'json',
+		beforeSend: function( xhr ) {
+			$(".loading-div").show();
+		},
+		error: function (jqXHR, textStatus, errorThrown) {
+			$(".stats-error").show();
+			$(".loading-div").hide();
+			$("#stats-content div").html("");
+		},
+	    success: function(data) {
+			$(".stats-error").hide();
+			$(".loading-div").hide();
+			
+			var newContent = "";
+			var commission = data.account.current_commission_rate * 100;				
+			newContent += "<div class='stats-row'><img class='item-thumbnail' src='" + data.account.image + "' /> <span class='account-name'>" + data.account.firstname + " " + data.account.surname + " </span><div style='clear:both;'></div></div><div class='stats-row'><div class='stats-label'>Total Earnings: </div><div class='stats-text'>$" + data.account.total_earnings + "</div><div style='clear:both;'></div></div><div class='stats-row'><div class='stats-label'>Total Deposits: </div><div class='stats-text'>$" + data.account.total_deposits + "</div><div style='clear:both;'></div></div><div class='stats-row'><div class='stats-label'>Balance: </div><div class='stats-text'> $" + data.account.balance + "</div><div style='clear:both;'></div></div><div class='stats-row'><div class='stats-label'>Commission Rate: </div><div class='stats-text'> " + commission + "%</div><div style='clear:both;'></div></div>";
+			$("#stats-content div").html(newContent);				
+																					
+		}
+	});
+
+	// Get recent sales
+	$.ajax({
+		url: 'http://marketplace.envato.com/api/edge/' + storedUsername + '/' + storedKey + '/recent-sales.json',
+		dataType: 'json',
+		beforeSend: function( xhr ) {
+			$(".loading-div").show();
+		},
+		error: function (jqXHR, textStatus, errorThrown) {
+			$(".sales-error").show();
+			$(".loading-div").hide();
+			$("#recent-sales-content div").html("");
+		},
+	    success: function(data) {
+			$(".sales-error").hide();
+			$(".loading-div").hide();
+			
+			var newContent = "";
+			
+			$.each(data["recent-sales"], function(i,sale){
+				
+				newContent += "<div class='sale-row'><div class='sale-row-title'>" + sale.item + "</div><br><div class='item-row-date'>Sold at: " + sale.sold_at + "</div><div class='item-cost-box'>$" + sale.amount + "</div><div style='clear:both;'></div></div>";
+            });
+			$(".recent-sales-list").html(newContent);	
+			
+							
+																					
+		}
+	});
+	
+}
+
+// Retrieve settings, put them in global variables, populate the fields on the Settings page
+function getSettings () {
+	storedUpdateTime = air.EncryptedLocalStore.getItem("updatetime");
+	$("#update-frequency").attr("value", (storedUpdateTime/60000));
+	
+	if(air.EncryptedLocalStore.getItem("username"))
+	{
+		storedUsername = air.EncryptedLocalStore.getItem("username");
+		$("#username").attr("value", storedUsername);
+			
+	}
+	
+	if(air.EncryptedLocalStore.getItem("key"))
+	{
+		storedKey = air.EncryptedLocalStore.getItem("key");
+		$("#key").attr("value", storedKey);
+			
+	}
+}
+
+// Sale notification functionality
+function newSaleUpdate () {
+	$.ajax({
+		url: 'http://marketplace.envato.com/api/edge/' + storedUsername + '/' + storedKey + '/recent-sales.json',
+		dataType: 'json',
+		beforeSend: function( xhr ) {
+			$(".loading-div").show();
+		},
+		error: function (jqXHR, textStatus, errorThrown) {
+			$(".stats-error").show();
+			$(".loading-div").hide();
+		},
+	    success: function(data) {
+			$(".stats-error").hide();
+			$(".loading-div").hide();
+			
+			var newContent = "";
+			
+			// Check if the date of the user's latest sale is stored
+			if(!air.EncryptedLocalStore.getItem("lastsaledate"))
+			{
+				// If user has recent sales, store the date of the most recent sale
+				if(data["recent-sales"].length > 0)
+				{
+					var recentSales = data["recent-sales"];
+					var mostRecentSaleDate = Date.parse(recentSales[0].sold_at); 
+					var bytesRecentSale = new air.ByteArray(); 
+					bytesRecentSale.writeUTFBytes(mostRecentSaleDate); 
+					air.EncryptedLocalStore.setItem("lastsaledate", bytesRecentSale, false);
+				}
+			}
+			else
+			// User has date of latest sale stored
+			{
+				// Check if user has any recent sales
+				if(data["recent-sales"].length > 0)
+				{
+					var recentSales = data["recent-sales"];
+					
+					var mostRecentSaleDate = Date.parse(recentSales[0].sold_at); 
+					
+					// Display new sale alert, if user's latest sale date stored is less than the most recent sale
+					if(mostRecentSaleDate > air.EncryptedLocalStore.getItem("lastsaledate"))
+					{
+						displayNotification();
+					}
+					// Store most recent sale
+					var bytesRecentSale = new air.ByteArray(); 
+					bytesRecentSale.writeUTFBytes(mostRecentSaleDate); 
+					air.EncryptedLocalStore.setItem("lastsaledate", bytesRecentSale, false);
+					
+				}
+				
+			}
+				
+		}
+	});
+}
+
+// Modal popup 
+function openModal (text) {
+	$(".overlay").show();
+	$(".modal").show();
+	$(".modal-text").text(text);
+	$(".ok").click(function () {
+		$(".overlay, .modal").hide();
+		
+	});
+}
+
+// Display new sale alert
+function displayNotification()
+{
+	var options = new air.NativeWindowInitOptions();
+
+	options.type = air.NativeWindowType.LIGHTWEIGHT;
+	options.transparent = true;
+	options.systemChrome = air.NativeWindowSystemChrome.NONE;
+
+	var bounds = null;
+	var screen = air.Screen.mainScreen.visibleBounds;
+	var windowHeight = 100;
+	var windowWidth = 350;
+
+	bounds = new air.Rectangle(
+		screen.width - windowWidth - 40,
+		screen.height - windowHeight - 50,
+		windowWidth,
+		windowHeight
+	);
+
+	var notification = air.HTMLLoader.createRootWindow(
+		true,
+		options,
+		false,
+		bounds
+	);
+
+	notification.paintsDefaultBackground = false;
+	notification.stage.nativeWindow.alwaysInFront = true;
+	notification.navigateInSystemBrowser = true;
+
+	var NOTIFY_SOURCE = "notification.html";
+	notification.load( new air.URLRequest( NOTIFY_SOURCE ) );
+	
+}
+	
+
+</script>
+</head>
+
+<body>
+<div class="overlay"></div>
+<div class="main-menu">
+    <div class="logo-menu-item" id="go-envato" style="background-color:#313131;"> <img src="images/my-envato-text.png" height="30" alt=""/> </div>
+    <div id="my-info" class="main-menu-item main-menu-item-active"> My Info
+        <div class="menu-icon"></div>
+    </div>
+    <div id="marketplaces" class="main-menu-item"> Marketplaces
+        <div class="menu-icon"></div>
+    </div>
+    <div id="settings" class="main-menu-item"> Settings
+        <div class="menu-icon"></div>
+    </div>
+    <div class="loading-div"></div>
+</div>
+<div class="marketplace-panel">
+    <div id="themeforest" class="marketplace-panel-item marketplace-panel-item-active">themeforest</div>
+    <div id="graphicriver" class="marketplace-panel-item">graphicriver</div>
+    <div id="codecanyon" class="marketplace-panel-item">codecanyon</div>
+    <div id="photodune" class="marketplace-panel-item">photodune</div>
+    <div id="activeden" class="marketplace-panel-item">activeden</div>
+    <div id="videohive" class="marketplace-panel-item">videohive</div>
+    <div id="audiojungle" class="marketplace-panel-item">audiojungle</div>
+    <div id="threedocean" class="marketplace-panel-item">3docean</div>
+</div>
+<div id="page">
+    <div page="my-info">
+        <div class="page-header">
+            <div class="refresh">Refresh</div>
+            <div class="page-header-title">My Info</div>
+        </div>
+        <div class="tab-container stats-tabs">
+            <div class="tab active" id="stats">Stats</div>
+            <div class="tab" id="recent-sales">Recent Sales</div>
+            <div style="clear:both;"></div>
+        </div>
+        <div id="info-content" class="tab-content">
+            <div id="stats-content" >
+                <h3 class="stats-error" style="display:none;">Could not retrieve your stats. Check internet connection or make sure you have entered a valid username and API key.</h3>
+                <div> </div>
+            </div>
+            <div id="recent-sales-content" style="display:none;">
+                <h3 class="sales-error" style="display:none;">Could not retrieve your stats. Check internet connection or make sure you have entered a valid username and API key.</h3>
+                <div class="recent-sales-list"></div>
+            </div>
+        </div>
+    </div>
+    <div page="marketplaces">
+        <div class="page-header">
+            <div class="refresh">Refresh</div>
+            <div class="page-header-title">Marketplace</div>
+        </div>
+        <div class="tab-container marketplace-tabs">
+            <div class="tab active" id="recent-items">New Files</div>
+            <div class="tab" id="popular-files">Popular Files</div>
+            <div style="clear:both;"></div>
+        </div>
+        <div id="marketplace-content" class="tab-content">
+            <div id="recent-items-content" >
+                <h3 class="marketplace-error" style="display:none;">Could not connect to marketplace. Check internet connection.</h3>
+                <div class="recent-items-list"></div>
+            </div>
+            <div id="popular-files-content" style="display:none;">
+                <h3 class="marketplace-error" style="display:none;">Could not connect to marketplace. Check internet connection.</h3>
+                <div class="popular-files-list"></div>
+            </div>
+        </div>
+    </div>
+    <div page="settings">
+        <div class="page-header">
+            <div class="page-header-title">Settings</div>
+        </div>
+        <div class="settings-row">
+            <div class="settings-label"> Envato Username </div>
+            <div class="settings-input">
+                <input type="text" id="username" placeholder="Enter your username"/>
+            </div>
+            <div style="clear:both;"></div>
+        </div>
+        <div class="settings-row">
+            <div class="settings-label"> Envato API Key </div>
+            <div class="settings-input">
+                <input type="text" id="key" placeholder="Enter your API Key" />
+            </div>
+            <div style="clear:both;"></div>
+        </div>
+        <div class="settings-row">
+            <div class="settings-label"> Update Frequency </div>
+            <div class="settings-input">
+                <input type="text" id="update-frequency" placeholder="Enter number of minutes"/>
+            </div>
+            <div style="clear:both;"></div>
+        </div>
+        <div class="save-settings"> Save </div>
+    </div>
+</div>
+<div class="modal">
+    <hr>
+    <div class="modal-text"></div>
+    <div class="ok">OK </div>
+</div>
+</body>
+</html>

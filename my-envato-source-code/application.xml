@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<application xmlns="http://ns.adobe.com/air/application/2.0">
+    <filename>My Envato</filename>
+    <copyright> </copyright>
+    <name>My Envato</name>
+    <customUpdateUI>false</customUpdateUI>
+    <id>MyEnvato</id>
+    <version>1</version>
+    <initialWindow>
+        <content>index.html</content>
+        <height>600</height>
+        <width>800</width>
+        <systemChrome>standard</systemChrome>
+        <transparent>false</transparent>
+        <visible>true</visible>
+		<maximizable>false</maximizable>
+    </initialWindow>
+    <icon>
+        <image128x128>images/my-envato-logo-128x128.png</image128x128>
+        <image48x48>images/my-envato-logo-48x48.png</image48x48>
+        <image32x32>images/my-envato-logo-32x32.png</image32x32>
+        <image16x16>images/my-envato-logo-16x16.png</image16x16>
+    </icon>
+	<supportedProfiles>desktop extendedDesktop</supportedProfiles>
+	
+</application>
